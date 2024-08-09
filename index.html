@@ -1,29 +1,82 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Slider</title>
+    <style>
+        #youtube-slider {
+            width: 1280px;
+            height: 520px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        #youtube-slider iframe {
+            width: 1280px;
+            height: 520px;
+            position: absolute;
+            top: 0;
+            left: 100%;
+            transition: left 0.5s ease-in-out;
+            display: none;
+        }
+        .active {
+            left: 0;
+            display: block;
+        }
+        #prev, #next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        #prev {
+            left: 10px;
+        }
+        #next {
+            right: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div id="youtube-slider" style="width:100%; max-width:600px; margin:0 auto;">
-        <iframe id="video1" width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="display:none;"></iframe>
-        <iframe id="video2" width="560" height="315" src="https://www.youtube.com/embed/9bZkp7q19f0?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="display:none;"></iframe>
-        <iframe id="video3" width="560" height="315" src="https://www.youtube.com/embed/3JZ_D3ELwOQ?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="display:none;"></iframe>
-    </div>
 
-    <script>
-        let currentIndex = 0;
-        const videos = document.querySelectorAll('#youtube-slider iframe');
+<div id="youtube-slider">
+    <iframe id="video1" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="active"></iframe>
+    <iframe id="video2" src="https://www.youtube.com/embed/9bZkp7q19f0?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <iframe id="video3" src="https://www.youtube.com/embed/3JZ_D3ELwOQ?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
-        function showNextVideo() {
-            videos[currentIndex].style.display = 'none';
-            currentIndex = (currentIndex + 1) % videos.length;
-            videos[currentIndex].style.display = 'block';
-        }
+    <button id="prev">⟨</button>
+    <button id="next">⟩</button>
+</div>
 
-        videos[currentIndex].style.display = 'block';
-        setInterval(showNextVideo, 10000); // Wechselt alle 10 Sekunden
-    </script>
+<script>
+    let currentIndex = 0;
+    const videos = document.querySelectorAll('#youtube-slider iframe');
+    const totalVideos = videos.length;
+
+    function showNextVideo() {
+        videos[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + 1) % totalVideos;
+        videos[currentIndex].classList.add('active');
+    }
+
+    function showPrevVideo() {
+        videos[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex - 1 + totalVideos) % totalVideos;
+        videos[currentIndex].classList.add('active');
+    }
+
+    document.getElementById('next').addEventListener('click', showNextVideo);
+    document.getElementById('prev').addEventListener('click', showPrevVideo);
+
+    setInterval(showNextVideo, 15000); // Wechselt alle 15 Sekunden
+</script>
+
 </body>
 </html>
