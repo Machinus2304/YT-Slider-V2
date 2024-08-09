@@ -59,6 +59,7 @@
     let currentIndex = 0;
     const videos = document.querySelectorAll('#youtube-slider iframe');
     const totalVideos = videos.length;
+    let autoSlideInterval;
 
     function showNextVideo() {
         videos[currentIndex].classList.remove('active');
@@ -72,11 +73,33 @@
         videos[currentIndex].classList.add('active');
     }
 
-    document.getElementById('next').addEventListener('click', showNextVideo);
-    document.getElementById('prev').addEventListener('click', showPrevVideo);
+    function startAutoSlide() {
+        autoSlideInterval = setInterval(showNextVideo, 15000); // Wechselt alle 15 Sekunden
+    }
 
-    setInterval(showNextVideo, 15000); // Wechselt alle 15 Sekunden
+    function stopAutoSlide() {
+        clearInterval(autoSlideInterval);
+    }
+
+    document.getElementById('next').addEventListener('click', () => {
+        stopAutoSlide();
+        showNextVideo();
+    });
+
+    document.getElementById('prev').addEventListener('click', () => {
+        stopAutoSlide();
+        showPrevVideo();
+    });
+
+    // Stoppe das automatische Wechseln, wenn ein Video gestartet wird
+    videos.forEach(video => {
+        video.addEventListener('play', stopAutoSlide);
+    });
+
+    // Starte den automatischen Wechsel bei Seitenaufruf
+    startAutoSlide();
 </script>
 
 </body>
 </html>
+
