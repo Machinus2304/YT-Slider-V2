@@ -30,9 +30,9 @@
 
 <script>
 const videos = [
-  'https://www.youtube.com/watch?v=EyBy5CI_x60', // Rick Astley - Never Gonna Give You Up
-  'https://www.youtube.com/watch?v=Wa8GPC74z3M', // Luis Fonsi - Despacito ft. Daddy Yankee
-  'https://www.youtube.com/watch?v=bAVpyzJwHZs'  // "Bohemian Rhapsody" - Queen - Live Aid 1985
+  'https://www.youtube.com/embed/EyBy5CI_x60',
+  'https://www.youtube.com/embed/Wa8GPC74z3M',
+  'https://www.youtube.com/embed/bAVpyzJwHZs'
 ];
 
 let currentVideoIndex = 0;
@@ -43,7 +43,7 @@ const players = document.getElementsByClassName('youtube-player');
 function loadVideos() {
   for (let i = 0; i < players.length; i++) {
     const index = (currentVideoIndex + i) % videos.length;
-    players[i].src = videos[index] + '?enablejsapi=1';
+    players[i].src = videos[index] + '?enablejsapi=1&autoplay=0';
   }
 }
 
