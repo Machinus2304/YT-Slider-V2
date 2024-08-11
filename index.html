@@ -1,33 +1,53 @@
-<div id="youtube-slider-container" style="width: 100%; height: 100%; position: relative; overflow: hidden;">
-  <div id="youtube-slider" style="width: 100%; height: 100%; position: relative; transition: transform 1s ease;">
-    <iframe id="youtube-player-1" class="youtube-player" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    <iframe id="youtube-player-2" class="youtube-player" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    <iframe id="youtube-player-3" class="youtube-player" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Slider</title>
+  <style>
+    #youtube-slider-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    #youtube-slider {
+      display: flex; /* Flexbox für Slider */
+      transition: transform 1s ease;
+      width: 300%; /* Setze die Breite auf die Anzahl der Videos multipliziert */
+      height: 100%;
+    }
+    .youtube-player {
+      flex: 1; /* Stelle sicher, dass jedes Video gleichmäßig verteilt ist */
+      height: 100%;
+    }
+    #prev-button, #next-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      font-size: 24px;
+      padding: 10px;
+      cursor: pointer;
+    }
+    #prev-button { left: 10px; }
+    #next-button { right: 10px; }
+  </style>
+</head>
+<body>
+
+<div id="youtube-slider-container">
+  <div id="youtube-slider">
+    <!-- Die IFrames werden dynamisch geladen -->
   </div>
-  <button id="prev-button" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 10;">&#8249;</button>
-  <button id="next-button" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 10;">&#8250;</button>
+  <button id="prev-button">&#8249;</button>
+  <button id="next-button">&#8250;</button>
 </div>
 
-<style>
-  #youtube-slider-container, #youtube-slider, .youtube-player {
-    width: 100%;
-    height: 100%;
-  }
-  .youtube-player {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-  #prev-button, #next-button {
-    background: rgba(0,0,0,0.5);
-    color: white;
-    border: none;
-    font-size: 24px;
-    padding: 10px;
-    cursor: pointer;
-  }
-</style>
-
+<script src="https://www.youtube.com/iframe_api"></script>
 <script>
 const videos = [
   'https://www.youtube.com/embed/XZvmDETfLzE',
@@ -37,22 +57,33 @@ const videos = [
 
 let currentVideoIndex = 0;
 let intervalId;
-const slider = document.getElementById('youtube-slider');
-const players = Array.from(document.getElementsByClassName('youtube-player'));
 
-// Funktion zum Laden der Videos in die IFrames
+const slider = document.getElementById('youtube-slider');
+
+// Funktion zum Erstellen und Laden der IFrames
 function loadVideos() {
-  for (let i = 0; i < players.length; i++) {
-    const index = (currentVideoIndex + i) % videos.length;
-    players[i].src = videos[index] + '?enablejsapi=1&autoplay=0';
-  }
+  slider.innerHTML = ''; // Leere den Slider vor dem Neuladen
+  videos.forEach((videoUrl, index) => {
+    const iframe = document.createElement('iframe');
+    iframe.className = 'youtube-player';
+    iframe.src = videoUrl + '?enablejsapi=1&autoplay=0';
+    iframe.frameBorder = '0';
+    iframe.allow = 'autoplay; encrypted-media';
+    iframe.allowFullscreen = true;
+    slider.appendChild(iframe);
+  });
+  updateSliderPosition();
+}
+
+// Funktion zum Aktualisieren der Slider-Position
+function updateSliderPosition() {
+  slider.style.transform = `translateX(${-currentVideoIndex * 100}%)`;
 }
 
 // Funktion zum Bewegen des Sliders
 function slide(direction) {
   currentVideoIndex = (currentVideoIndex + direction + videos.length) % videos.length;
-  slider.style.transform = `translateX(${-currentVideoIndex * 100}%)`;
-  setTimeout(loadVideos, 1000); // Load new videos after animation
+  updateSliderPosition();
 }
 
 // Funktion zum Starten des Sliders
@@ -79,10 +110,10 @@ document.getElementById('next-button').addEventListener('click', () => {
   intervalId = setInterval(() => slide(1), 15000);
 });
 
-// Event Listener für das Abspielen der Videos
+// Funktion zum Stoppen des Sliders, wenn ein Video abgespielt wird
 function onYouTubeIframeAPIReady() {
-  players.forEach(player => {
-    const playerInstance = new YT.Player(player.id, {
+  Array.from(document.getElementsByClassName('youtube-player')).forEach(player => {
+    const playerInstance = new YT.Player(player, {
       events: {
         'onStateChange': function(event) {
           if (event.data === YT.PlayerState.PLAYING) {
@@ -94,11 +125,7 @@ function onYouTubeIframeAPIReady() {
   });
 }
 
-// Laden der YouTube IFrame API
-const tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-const firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
 startSlider();
 </script>
+</body>
+</html>
