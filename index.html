@@ -1,102 +1,36 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YoutubeFlix</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #141414;
-            color: white;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #000;
-            padding: 20px;
-        }
-        h1 {
-            margin: 0;
-        }
-        .category {
-            margin: 30px 20px;
-        }
-        .video-container {
-            display: flex;
-            overflow-x: auto;
-            padding: 10px 0;
-        }
-        .video-item {
-            margin-right: 10px;
-            text-align: center;
-        }
-        .video-item img {
-            width: 200px;
-            height: 112px;
-            object-fit: cover;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>YoutubeFlix</h1>
-    </header>
+<div id="youtube-slider" style="width: 640px; height: 360px; position: relative; overflow: hidden;">
+  <iframe id="youtube-player" width="640" height="360" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+</div>
 
-    <main>
-        <section class="category">
-            <h2>Dokumentationen</h2>
-            <div class="video-container">
-                <div class="video-item">
-                    <a href="https://www.youtube.com/watch?v=VOd-VFKaA4I" target="_blank">
-                        <img src="https://img.youtube.com/vi/VOd-VFKaA4I/0.jpg" alt="Our Planet | Küsten">
-                        <p>Our Planet | Küsten</p>
-                    </a>
-                </div>
-                <div class="video-item">
-                    <a href="https://www.youtube.com/watch?v=4-BQTmLKBFo" target="_blank">
-                        <img src="https://img.youtube.com/vi/4-BQTmLKBFo/0.jpg" alt="Geheimnisse des Universums">
-                        <p>Geheimnisse des Universums</p>
-                    </a>
-                </div>
-            </div>
-        </section>
+<script>
+const videos = [
+  'https://www.youtube.com/embed/dQw4w9WgXcQ', // Rick Astley - Never Gonna Give You Up
+  'https://www.youtube.com/embed/kJQP7kiw5Fk', // Luis Fonsi - Despacito ft. Daddy Yankee
+  'https://www.youtube.com/embed/xC8MaJt7cbs'  // "Bohemian Rhapsody" - Queen - Live Aid 1985
+];
 
-        <section class="category">
-            <h2>Kochshows</h2>
-            <div class="video-container">
-                <div class="video-item">
-                    <a href="https://www.youtube.com/watch?v=5EKw4k8hkHA" target="_blank">
-                        <img src="https://img.youtube.com/vi/5EKw4k8hkHA/0.jpg" alt="Gordon Ramsay Kocht">
-                        <p>Gordon Ramsay Kocht</p>
-                    </a>
-                </div>
-                <div class="video-item">
-                    <a href="https://www.youtube.com/watch?v=7tUG9zp2Pqo" target="_blank">
-                        <img src="https://img.youtube.com/vi/7tUG9zp2Pqo/0.jpg" alt="Binging with Babish">
-                        <p>Binging with Babish</p>
-                    </a>
-                </div>
-            </div>
-        </section>
+let currentVideoIndex = 0;
+let intervalId;
+const player = document.getElementById('youtube-player');
 
-        <section class="category">
-            <h2>Musik</h2>
-            <div class="video-container">
-                <div class="video-item">
-                    <a href="https://www.youtube.com/watch?v=JGwWNGJdvx8" target="_blank">
-                        <img src="https://img.youtube.com/vi/JGwWNGJdvx8/0.jpg" alt="Ed Sheeran - Shape of You">
-                        <p>Ed Sheeran - Shape of You</p>
-                    </a>
-                </div>
-                <div class="video-item">
-                    <a href="https://www.youtube.com/watch?v=kJQP7kiw5Fk" target="_blank">
-                        <img src="https://img.youtube.com/vi/kJQP7kiw5Fk/0.jpg" alt="Luis Fonsi - Despacito">
-                        <p>Luis Fonsi - Despacito</p>
-                    </a>
-                </div>
-            </div>
-        </section>
-    </main>
-</body>
-</html>
+function loadVideo(index) {
+  player.src = videos[index] + '?enablejsapi=1';
+}
+
+function nextVideo() {
+  currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+  loadVideo(currentVideoIndex);
+}
+
+function startSlider() {
+  loadVideo(currentVideoIndex);
+  intervalId = setInterval(nextVideo, 15000);
+}
+
+player.addEventListener('click', function() {
+  clearInterval(intervalId);
+  player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+});
+
+startSlider();
+</script>
