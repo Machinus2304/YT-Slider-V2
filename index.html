@@ -1,129 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Slider</title>
-    <style>
-        #youtube-slider-container {
-            width: 100%;
-            height: 0;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            position: relative;
-            overflow: hidden;
-        }
-        #youtube-slider {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transition: transform 1s ease;
-        }
-        .youtube-player {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        #prev-button, #next-button {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 10;
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            font-size: 24px;
-            padding: 10px;
-            cursor: pointer;
-        }
-        #prev-button { left: 10px; }
-        #next-button { right: 10px; }
-    </style>
-</head>
-<body>
-    <div id="youtube-slider-container">
-        <div id="youtube-slider">
-            <!-- Die IFrames werden dynamisch geladen -->
-        </div>
-        <button id="prev-button">&#8249;</button>
-        <button id="next-button">&#8250;</button>
-    </div>
+const videos = [
+    'https://www.youtube.com/embed/XZvmDETfLzE',
+    'https://www.youtube.com/embed/hLjTItsAH3I',
+    'https://www.youtube.com/embed/bAVpyzJwHZs'
+];
+let currentVideoIndex = 0;
+let intervalId;
+let isPlaying = false;
+const slider = document.getElementById('youtube-slider');
 
-    <script src="https://www.youtube.com/iframe_api"></script>
-    <script>
-        const videos = [
-            'https://www.youtube.com/embed/XZvmDETfLzE',
-            'https://www.youtube.com/embed/hLjTItsAH3I',
-            'https://www.youtube.com/embed/bAVpyzJwHZs'
-        ];
-        let currentVideoIndex = 0;
-        let intervalId;
-        const slider = document.getElementById('youtube-slider');
+function loadVideos() {
+    slider.innerHTML = '';
+    videos.forEach((videoUrl, index) => {
+        const iframe = document.createElement('iframe');
+        iframe.className = 'youtube-player';
+        iframe.src = videoUrl + '?enablejsapi=1&autoplay=0';
+        iframe.frameBorder = '0';
+        iframe.allow = 'autoplay; encrypted-media';
+        iframe.allowFullscreen = true;
+        iframe.style.display = index === currentVideoIndex ? 'block' : 'none';
+        slider.appendChild(iframe);
+    });
+}
 
-        function loadVideos() {
-            slider.innerHTML = '';
-            videos.forEach((videoUrl, index) => {
-                const iframe = document.createElement('iframe');
-                iframe.className = 'youtube-player';
-                iframe.src = videoUrl + '?enablejsapi=1&autoplay=0';
-                iframe.frameBorder = '0';
-                iframe.allow = 'autoplay; encrypted-media';
-                iframe.allowFullscreen = true;
-                iframe.style.display = index === currentVideoIndex ? 'block' : 'none';
-                slider.appendChild(iframe);
-            });
-        }
+function updateSliderPosition() {
+    Array.from(slider.children).forEach((iframe, index) => {
+        iframe.style.display = index === currentVideoIndex ? 'block' : 'none';
+    });
+}
 
-        function updateSliderPosition() {
-            Array.from(slider.children).forEach((iframe, index) => {
-                iframe.style.display = index === currentVideoIndex ? 'block' : 'none';
-            });
-        }
+function slide(direction) {
+    if (!isPlaying) {
+        currentVideoIndex = (currentVideoIndex + direction + videos.length) % videos.length;
+        updateSliderPosition();
+    }
+}
 
-        function slide(direction) {
-            currentVideoIndex = (currentVideoIndex + direction + videos.length) % videos.length;
-            updateSliderPosition();
-        }
-
-        function startSlider() {
-            loadVideos();
-            intervalId = setInterval(() => slide(1), 15000);
-        }
-
-        function stopSlider() {
-            clearInterval(intervalId);
-        }
-
-        document.getElementById('prev-button').addEventListener('click', () => {
-            stopSlider();
-            slide(-1);
-            intervalId = setInterval(() => slide(1), 15000);
-        });
-
-        document.getElementById('next-button').addEventListener('click', () => {
-            stopSlider();
+function startSlider() {
+    loadVideos();
+    intervalId = setInterval(() => {
+        if (!isPlaying) {
             slide(1);
-            intervalId = setInterval(() => slide(1), 15000);
-        });
-
-        function onYouTubeIframeAPIReady() {
-            Array.from(document.getElementsByClassName('youtube-player')).forEach(player => {
-                const playerInstance = new YT.Player(player, {
-                    events: {
-                        'onStateChange': function(event) {
-                            if (event.data === YT.PlayerState.PLAYING) {
-                                stopSlider();
-                            }
-                        }
-                    }
-                });
-            });
         }
+    }, 15000);
+}
 
+function stopSlider() {
+    clearInterval(intervalId);
+}
+
+document.getElementById('prev-button').addEventListener('click', () => {
+    if (!isPlaying) {
+        stopSlider();
+        slide(-1);
         startSlider();
-    </script>
-</body>
-</html>
+    }
+});
+
+document.getElementById('next-button').addEventListener('click', () => {
+    if (!isPlaying) {
+        stopSlider();
+        slide(1);
+        startSlider();
+    }
+});
+
+function onYouTubeIframeAPIReady() {
+    Array.from(document.getElementsByClassName('youtube-player')).forEach(player => {
+        const playerInstance = new YT.Player(player, {
+            events: {
+                'onStateChange': function(event) {
+                    if (event.data === YT.PlayerState.PLAYING) {
+                        isPlaying = true;
+                    } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+                        isPlaying = false;
+                    }
+                }
+            }
+        });
+    });
+}
+
+startSlider();
